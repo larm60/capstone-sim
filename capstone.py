@@ -99,6 +99,34 @@ for i in range(totalTime):
     actualFinalAccelerationX.append(xf[0])
     actualFinalAccelerationY.append(xf[1])
 
+############################################################## 
+r = 1 #radius feet
+pos = r*theta #final position
+
+v = 1 #velocity (ft/sec)
+ve = 1 #velocity with error
+t = 0.1 #time step (sec)
+theta = 30 #angle (degrees)
+
+print("Rotational Motion")
+error = int(input("Theta error (%): "))
+pose = r*theta*(1+error)
+totalTime = 10 #in sec
+for i in range(totalTime): 
+    v += a*t
+    #expected final position
+    pos = pos + v*t + 0.5*a*t**2
+    print("Expected final position after time ", i+1, ": ", pos)
+
+
+    #final position with error
+    ve += (ae*t * (1+errorA)) * (1+errorV)
+    pose = pose + ve*t + 0.5*a*t**2
+    print("Actual final position with error after time ", i+1, ": ", pose)
+
+#################################################################
+
+
 imageCounter = 0
 
 fig, ax = plt.subplots()
