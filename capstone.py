@@ -87,8 +87,6 @@ for i in range(totalTime):
     x0[0] = xf[0]
     x0[1] = xf[1]
     print("Expected final position after time ", i+1, ": ", xf)
-    expectedFinalAccelerationX.append(xf[0])
-    expectedFinalAccelerationY.append(xf[1])
 
     #final position with error
     ve += (ae*t * (1+errorA)) * (1+errorV)
@@ -97,8 +95,6 @@ for i in range(totalTime):
     x0e[0] = xfe[0]
     x0e[1] = xfe[1]
     print("Actual final position with error after time ", i+1, ": ", xfe)
-    actualFinalAccelerationX.append(xf[0])
-    actualFinalAccelerationY.append(xf[1])
 
 ############################################################## 
 r = 1 #radius feet
@@ -124,6 +120,8 @@ for i in range(totalTime):
     x0[0] = xf[0]
     x0[1] = xf[1]
     print("Expected final position after time ", i+1, ": ", xf)
+    expectedFinalAccelerationX.append(xf[0])
+    expectedFinalAccelerationY.append(xf[1])
 
 
     #final position with error
@@ -133,6 +131,8 @@ for i in range(totalTime):
     x0e[0] = xfe[0]
     x0e[1] = xfe[1]
     print("Actual final position with error after time ", i+1, ": ", xfe)
+    actualFinalAccelerationX.append(xfe[0])
+    actualFinalAccelerationY.append(xfe[1])
 
 #################################################################
 
@@ -143,49 +143,47 @@ fig, ax = plt.subplots()
 x = expectedFinalPositionX
 y = expectedFinalPositionY
 line, = ax.plot(x, y, color='k')
+plt.title("Expected Linear Position, No Error")
 
 for n in range(len(expectedFinalPositionX)):
     line.set_data(x[:n], y[:n])
-    ax.axis([0, 5, 0, 5])
+    ax.axis([min(expectedFinalPositionX), max(expectedFinalPositionX), min(expectedFinalPositionY), max(expectedFinalPositionY)])
     fig.canvas.draw()
     fig.savefig('Frame%03d.png' %imageCounter)
     imageCounter = imageCounter + 1
 
+plt.title("Actual Linear Position, With Error")
 x = actualFinalPositionX
 y = actualFinalPositionY
 line, = ax.plot(x, y, color='b')
 
 for n in range(len(expectedFinalPositionX)):
     line.set_data(x[:n], y[:n])
-    ax.axis([0, 5, 0, 5])
+    ax.axis([min(actualFinalPositionX), max(actualFinalPositionX), min(actualFinalPositionY), max(actualFinalPositionY)])
     fig.canvas.draw()
     fig.savefig('Frame%03d.png' %imageCounter)
     imageCounter = imageCounter + 1
 
+plt.title("Expected Rotational Position, No Error")
 x = expectedFinalAccelerationX
 y = expectedFinalAccelerationY
 line, = ax.plot(x, y, color='g')
 
 for n in range(len(expectedFinalPositionX)):
     line.set_data(x[:n], y[:n])
-    ax.axis([0, 5, 0, 5])
+    ax.axis([min(expectedFinalAccelerationX), max(expectedFinalAccelerationX), min(expectedFinalAccelerationY), max(expectedFinalAccelerationY)])
     fig.canvas.draw()
     fig.savefig('Frame%03d.png' %imageCounter)
     imageCounter = imageCounter + 1
 
+plt.title("Actual Rotational Position, With Error")
 x = actualFinalAccelerationX
 y = actualFinalAccelerationY
 line, = ax.plot(x, y, color='r')
 
 for n in range(len(expectedFinalPositionX)):
     line.set_data(x[:n], y[:n])
-    ax.axis([0, 50, 0, 50])
+    ax.axis([min(actualFinalAccelerationX), max(actualFinalAccelerationX), min(actualFinalAccelerationY), max(actualFinalAccelerationY)])
     fig.canvas.draw()
     fig.savefig('Frame%03d.png' %imageCounter)
     imageCounter = imageCounter + 1
-
-
-
-
-
-print("test")
