@@ -7,6 +7,7 @@ import matplotlib.animation as animation
 import imageio
 from PIL import Image 
 import PIL 
+import math
 
 
 #linear motion
@@ -81,8 +82,8 @@ totalTime = 10 #in sec
 for i in range(totalTime): 
     v += a*t
     #expected final position
-    xf[0] = x0[0] + v*t + 0.5*a*t**2
-    xf[1] = x0[1] + v*t + 0.5*a*t**2
+    xf[0] = x0[0] + v*t 
+    xf[1] = x0[1] + v*t 
     x0[0] = xf[0]
     x0[1] = xf[1]
     print("Expected final position after time ", i+1, ": ", xf)
@@ -91,8 +92,8 @@ for i in range(totalTime):
 
     #final position with error
     ve += (ae*t * (1+errorA)) * (1+errorV)
-    xfe[0] = x0e[0] + ve*t + 0.5*a*t**2
-    xfe[1] = x0e[1] + ve*t + 0.5*a*t**2
+    xfe[0] = x0e[0] + ve*t 
+    xfe[1] = x0e[1] + ve*t 
     x0e[0] = xfe[0]
     x0e[1] = xfe[1]
     print("Actual final position with error after time ", i+1, ": ", xfe)
@@ -101,28 +102,37 @@ for i in range(totalTime):
 
 ############################################################## 
 r = 1 #radius feet
-pos = r*theta #final position
+x0 = [0,0] #initial position
+x0e = [0,0] #intial position 
+xf = [0,0] #final position
+xfe = [0,0] #final position with erro
 
 v = 1 #velocity (ft/sec)
 ve = 1 #velocity with error
 t = 0.1 #time step (sec)
-theta = 30 #angle (degrees)
+theta = math.pi/6 #angle (radians)
 
 print("Rotational Motion")
 error = int(input("Theta error (%): "))
-pose = r*theta*(1+error)
+
 totalTime = 10 #in sec
 for i in range(totalTime): 
     v += a*t
     #expected final position
-    pos = pos + v*t + 0.5*a*t**2
-    print("Expected final position after time ", i+1, ": ", pos)
+    xf[0] = x0[0] + v*t*math.cos(theta)
+    xf[1] = x0[1] + v*t*math.sin(theta) 
+    x0[0] = xf[0]
+    x0[1] = xf[1]
+    print("Expected final position after time ", i+1, ": ", xf)
 
 
     #final position with error
     ve += (ae*t * (1+errorA)) * (1+errorV)
-    pose = pose + ve*t + 0.5*a*t**2
-    print("Actual final position with error after time ", i+1, ": ", pose)
+    xfe[0] = x0e[0] + ve*t*math.cos(theta*(1+error))
+    xfe[1] = x0e[1] + ve*t*math.sin(theta*(1+error))
+    x0e[0] = xfe[0]
+    x0e[1] = xfe[1]
+    print("Actual final position with error after time ", i+1, ": ", xfe)
 
 #################################################################
 
