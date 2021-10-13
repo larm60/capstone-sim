@@ -128,6 +128,7 @@ for i in range(totalTime):
     ve += (ae*t * (1+errorA)) * (1+errorV)
     xfe[0] = x0e[0] + ve*t*math.cos(theta*(1+error))
     xfe[1] = x0e[1] + ve*t*math.sin(theta*(1+error))
+    print(xfe[1])
     x0e[0] = xfe[0]
     x0e[1] = xfe[1]
     print("Actual final position with error after time ", i+1, ": ", xfe)
