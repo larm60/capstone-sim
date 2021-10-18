@@ -1,4 +1,5 @@
 #include <DeadReckoner.h>
+#include <SoftwareSerial.h>
 #include <Arduino.h>
 // ENCODER PINS
 #define ENCODER_LEFT_PIN 2
@@ -14,7 +15,6 @@
 // TIME INTERVALS
 #define POSITION_COMPUTE_INTERVAL 50 // milliseconds
 #define SEND_INTERVAL 100 // milliseconds
-
 
 // Number of left and right tick counts on the encoder.
 volatile unsigned int leftTicks, rightTicks;
@@ -32,6 +32,11 @@ DeadReckoner deadReckoner(&leftTicks, &rightTicks, TICKS_PER_REV, RADIUS, LENGTH
 void pulseLeft() { leftTicks++; }
 void pulseRight() { rightTicks++; }
 
+SoftwareSerial odrive_serial(8, 9);
+
+// ODrive object
+ODriveArduino odrive(odrive_serial);
+
 /**
 Attaches interrupt and disables all serial communications.
 This is necessary because when interrupts are active, incoming serial communication can be lost.
@@ -43,7 +48,31 @@ void attachInterrupts() {
 
 void setup() {
   attachInterrupts();
-  Serial.begin(9600);
+  
+  // ODrive uses 115200 baud
+  odrive_serial.begin(115200);
+
+  // Serial to PC
+  Serial.begin(115200);
+  while (!Serial) ; // wait for Arduino Serial Monitor to open
+
+  Serial.println("ODriveArduino");
+  Serial.println("Setting parameters...");
+
+  // In this example we set the same parameters to both motors.
+  // You can of course set them different if you want.
+  // See the documentation or play around in odrivetool to see the available parameters
+  for (int axis = 0; axis < 2; ++axis) {
+    odrive_serial << "w axis" << axis << ".controller.config.vel_limit " << 10.0f << '\n';
+    odrive_serial << "w axis" << axis << ".motor.config.current_lim " << 11.0f << '\n';
+    // This ends up writing something like "w axis0.motor.config.current_lim 10.0\n"
+  }
+
+  Serial.println("Ready!");
+  Serial.println("Send the character '0' or '1' to calibrate respective motor (you must do this before you can command movement)");
+  Serial.println("Send the character 's' to exectue test move");
+  Serial.println("Send the character 'b' to read bus voltage");
+  Serial.println("Send the character 'p' to read motor positions in a 10s loop");
 }
 
 void loop() {
