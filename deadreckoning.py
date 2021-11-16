@@ -32,6 +32,7 @@ my_drive.axis1.requested_state = AXIS_STATE_CLOSED_LOOP_CONTROL
 my_drive.axis0.controller.input_vel = -20
 my_drive.axis1.controller.input_vel = 20
 
+
 ticksPerRev = 200
 radius = 120 #in mm
 length = 500 #in mm
@@ -95,3 +96,13 @@ def computePosition():
 	while(1):
 		computePosition()
 		print(xc, yc, dist)
+		temp = True
+		#turn attempt (only does it once)
+		if temp:
+			my_drive.axis0.controller.input_vel = 0
+			my_drive.axis1.controller.input_vel = 20
+			time.sleep(1) #waits for 1 second
+
+			my_drive.axis0.controller.input_vel = 0
+			my_drive.axis1.controller.input_vel = 0
+			temp = False
