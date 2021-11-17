@@ -32,16 +32,16 @@ my_drive.axis1.requested_state = AXIS_STATE_CLOSED_LOOP_CONTROL
 ticksPerRev = 200
 radius = 120 #in mm
 length = 500 #in mm
-toRadPerSec = 1000000 * (math.PI * 2) / ticksPerRev
+toRadPerSec = 1000000 * (math.pi * 2) / ticksPerRev
 positionComputeInterval = 100 #in microseconds 
 
 #Global variables
 wl = 0
 wr = 0
-previousWheelComputeTime = 0
+prevWheelComputeTime = 0
 leftTicksPrev = 0
 rightTicksPrev = 0
-previousIntegrationTime = 0
+prevIntegrationTime = 0
 radius = 120 # mm
 length = 500 # mm
 xc = 0
@@ -104,7 +104,17 @@ def computePosition():
         yc = yNext
         theta = thetaNext
 
-        toRPM = 30 / math.PI
+        toRPM = 30 / math.pi
         dist = math.sqrt(xc*xc + yc * yc)
 
         prevIntegrationTime = time.time()*1000
+
+my_drive.axis0.controller.input_vel = 50
+my_drive.axis1.controller.input_vel = -50
+value = input("Press 1")
+
+while(value == "1"):
+	computePosition()
+	print(xc)
+	print(yc)
+	time.sleep(1)
