@@ -10,6 +10,16 @@ from odrive.enums import *
 import time
 import math
 
+#global variables
+leftTicksPrev = 0
+rightTicksPrev = 0
+prevWheelComputeTime = 0
+
+#constnats
+toRadPerSec = 1000000 * 6.28 / ticksPerRev
+ticksPerRev = 200
+positionComputeInterval = 100 #in microseconds 
+
 # Find a connected ODrive (this will block until you connect one)
 print("finding an odrive...")
 my_drive = odrive.find_any()
@@ -65,6 +75,10 @@ currentShadowCount = my_drive.axis1.encoder.shadow_count # shadow count boot-up
 my_drive.axis0.controller.input_vel = 50
 my_drive.axis1.controller.input_vel = -50
 
+for i in range(30):
+	computeVelocities()
+	print("test")
+
 # Stop moving
 # First, see if shadow count has reached a certain limit
 updateShadowCount()
@@ -82,7 +96,7 @@ if (abs(currentShadowCount - newShadowCount) < 5): # Robot has stopped moving
 currentShadowCount = newShadowCount
 
 # now, stop the wheel after a full 90 degree rotation
-newShadowCount()
+updateShadowCount()
 if (abs(currentShadowCount - newShadowCount) > 800): # if it has reached a threshold
 	my_drive.axis0.controller.input_vel = 0
 	my_drive.axis1.controller.input_vel = 0
@@ -97,8 +111,33 @@ if (abs(currentShadowCount - newShadowCount) > 800): # if it has reached a thres
 currentShadowCount = newShadowCount
 #---------------------------------------------------------------------------
 	
-
-
 def updateShadow():
 	newShadowCount = my_drive.axis1.encoder.shadow_count # measure current pos
-	
+
+def computeVelocities():
+	global prevWheelComputeTime
+	global leftTicksPrev
+	global rightTicksPrev
+
+	dt_omega = time.time()*1000 - prevWheelComputeTime
+
+	leftTicks = 500
+	rightTicks = 450
+
+	changeLeftTicks = leftTicks - leftTicksPrev
+	changeRightTicks = rightTicks - rightTicksPrev
+
+	wl = changeLeftTicks / dt_omega * toRadPerSec
+	wr = changeRightTicks / dt_omega * toRadPerSec
+
+	Vl = wl * radius #linear velocity left wheel
+	Vr = wr * radius #linear velocity right wheel
+	v = (Vr + Vl) / 2.0 #average velocity
+	w = (Vr - Vl) / length #angular velocity
+
+	print(wl, wr, Vl, Vr, v, w)
+
+	leftTicksPrev = leftTicks
+	rightTicksPrev = rightTicks
+
+	prevWheelComputeTime = time.time()*1000
