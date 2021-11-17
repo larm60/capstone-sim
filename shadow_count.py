@@ -54,4 +54,51 @@ if (abs(currentShadowCount - initialShadowCountBoot) > 800):
 		currentShadowCount = my_drive.axis1.encoder.shadow_count
 		if (abs(currentShadowCount - initialShadowCount) > ninetyDegreeTurn):
 			my_drive.axis1.controller.input_vel = 0
+
+#--------------------------------------------------------------------------
+# Rectangle
+
+# Initialize
+currentShadowCount = my_drive.axis1.encoder.shadow_count # shadow count boot-up
+
+# Move straight
+my_drive.axis0.controller.input_vel = 50
+my_drive.axis1.controller.input_vel = -50
+
+# Stop moving
+# First, see if shadow count has reached a certain limit
+updateShadowCount()
+if (abs(currentShadowCount - newShadowCount) > 800): # if it has reached a threshold
+	my_drive.axis0.controller.input_vel = 0
+	my_drive.axis1.controller.input_vel = 0
+currentShadowCount = newShadowCount
+
+# Rotate 90-degrees
+# First, see if the robot is ready to rotate 90 degrees
+# This means that robot has completely stopped moving (no change in shadow count)
+updateShadowCount()
+if (abs(currentShadowCount - newShadowCount) < 5): # Robot has stopped moving
+	my_drive.axis1.controller.input_vel = 20 # move only 1 wheel
+currentShadowCount = newShadowCount
+
+# now, stop the wheel after a full 90 degree rotation
+newShadowCount()
+if (abs(currentShadowCount - newShadowCount) > 800): # if it has reached a threshold
+	my_drive.axis0.controller.input_vel = 0
+	my_drive.axis1.controller.input_vel = 0
+updateShadowCount()
+
+# Stop moving
+# First, see if shadow count has reached a certain limit
+updateShadowCount()
+if (abs(currentShadowCount - newShadowCount) > 800): # if it has reached a threshold
+	my_drive.axis0.controller.input_vel = 0
+	my_drive.axis1.controller.input_vel = 0
+currentShadowCount = newShadowCount
+#---------------------------------------------------------------------------
+	
+
+
+def updateShadow():
+	newShadowCount = my_drive.axis1.encoder.shadow_count # measure current pos
 	
