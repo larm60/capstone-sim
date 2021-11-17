@@ -49,60 +49,62 @@ yc = 0
 theta = 0
 
 def computeAngVel():
-	global prevWheelComputeTime
-	global leftTicksPrev
-	global rightTicksPrev
-	global wl
-	global wr
-    	dt_omega = time.time()*1000 - prevWheelComputeTime
-    	leftTicks = my_drive.axis1.encoder.shadow_count
-    	rightTicks = my_drive.axis0.encoder.shadow_count
+    global prevWheelComputeTime
+    global leftTicksPrev
+    global rightTicksPrev
+    global wl
+    global wr
 
-    	changeLeftTicks = leftTicks - leftTicksPrev
-	changeRightTicks = rightTicks - rightTicksPrev
+    dt_omega = time.time()*1000 - prevWheelComputeTime
 
-	wl = changeLeftTicks / dt_omega * toRadPerSec
-	wr = changeRightTicks / dt_omega * toRadPerSec
+    leftTicks = my_drive.axis1.encoder.shadow_count
+    rightTicks = my_drive.axis0.encoder.shadow_count
 
-    	leftTicksPrev = leftTicks
-	rightTicksPrev = rightTicks
+    changeLeftTicks = leftTicks - leftTicksPrev
+    changeRightTicks = rightTicks - rightTicksPrev
 
-	prevWheelComputeTime = time.time()*1000
+    wl = changeLeftTicks / dt_omega * toRadPerSec
+    wr = changeRightTicks / dt_omega * toRadPerSec
+
+    leftTicksPrev = leftTicks
+    rightTicksPrev = rightTicks
+
+    prevWheelComputeTime = time.time()*1000
 
 def computePosition():
-	global w1
-	global wr
-	global positionComputeInterval
-	global prevIntegrationTime
-	global radius
-	global length
-	global xc
-	global yc
-	global theta
-    	if time.time()*1000 - prevIntegrationTime > positionComputeInterval:
-		computeAngVel()
-		# Time elapsed after the previous position has been integrated.
-		# change in time is defined as previous - current to prevent round off error.
-		dt_integration = time.time()*1000 - prevIntegrationTime
+    global w1
+    global wr
+    global positionComputeInterval
+    global prevIntegrationTime
+    global radius
+    global length
+    global xc
+    global yc
+    global theta
+    if time.time()*1000 - prevIntegrationTime > positionComputeInterval:
+        computeAngVel()
+        # Time elapsed after the previous position has been integrated.
+        # change in time is defined as previous - current to prevent round off error.
+        dt_integration = time.time()*1000 - prevIntegrationTime
 
-		dt = dt_integration / 1000000.0; # convert to seconds
+        dt = dt_integration / 1000000.0; # convert to seconds
 
-		# Dead reckoning equations
+        # Dead reckoning equations
 
-		Vl = wl * radius #linear velocity left wheel
-		Vr = wr * radius #linear velocity right wheel
-		v = (Vr + Vl) / 2.0 #average velocity
-		w = (Vr - Vl) / length #angular velocity
-		# Uses 4th order Runge-Kutta to integrate numerically to find position.
-		xNext = xc + dt * v*(2 + math.cos(dt*w / 2))*math.cos(theta + dt * w / 2) / 3
-		yNext = yc + dt * v*(2 + math.cos(dt*w / 2))*math.sin(theta + dt * w / 2) / 3
-		thetaNext = theta + dt * w
+        Vl = wl * radius #linear velocity left wheel
+        Vr = wr * radius #linear velocity right wheel
+        v = (Vr + Vl) / 2.0 #average velocity
+        w = (Vr - Vl) / length #angular velocity
+        # Uses 4th order Runge-Kutta to integrate numerically to find position.
+        xNext = xc + dt * v*(2 + math.cos(dt*w / 2))*math.cos(theta + dt * w / 2) / 3
+        yNext = yc + dt * v*(2 + math.cos(dt*w / 2))*math.sin(theta + dt * w / 2) / 3
+        thetaNext = theta + dt * w
 
-		xc = xNext
-		yc = yNext
-		theta = thetaNext
+        xc = xNext
+        yc = yNext
+        theta = thetaNext
 
-		toRPM = 30 / math.PI
-		dist = math.sqrt(xc*xc + yc * yc)
+        toRPM = 30 / math.PI
+        dist = math.sqrt(xc*xc + yc * yc)
 
-		prevIntegrationTime = time.time()*1000
+        prevIntegrationTime = time.time()*1000
