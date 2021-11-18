@@ -116,10 +116,10 @@ value = input("Press 1: ")
 initialTime = time.time()
 
 while(value == "1"):
-	computePosition()
-	print("x: ", xc)
-	print("y: ", yc)
-	time.sleep(1)
+    computePosition()
+    print("x: ", xc)
+    print("y: ", yc)
+    time.sleep(1)
     if (time.time()-initialTime > 10): # checks for if 10 seconds have passed (for purposes of testing only to see if we can have robot move and stop while getting position)
         my_drive.axis0.controller.input_vel = 0
         my_drive.axis1.controller.input_vel = 0
