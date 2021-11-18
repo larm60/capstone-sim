@@ -19,6 +19,8 @@ prevWheelComputeTime = 0
 toRadPerSec = 1000000 * 6.28 / ticksPerRev
 ticksPerRev = 200
 positionComputeInterval = 100 #in microseconds 
+radius = 120 #in mm
+length = 500 #in mm
 
 # Find a connected ODrive (this will block until you connect one)
 print("finding an odrive...")
@@ -118,6 +120,8 @@ def computeVelocities():
 	global prevWheelComputeTime
 	global leftTicksPrev
 	global rightTicksPrev
+	global radius
+	global length
 
 	dt_omega = time.time()*1000 - prevWheelComputeTime
 
