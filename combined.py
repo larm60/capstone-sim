@@ -33,7 +33,7 @@ ticksPerRev = 200
 radius = 120 #in mm
 length = 500 #in mm
 toRadPerSec = 1000000 * (math.pi * 2) / ticksPerRev
-positionComputeInterval = 100 #in microseconds 
+positionComputeInterval = 1000 #in microseconds 
 
 #Global variables
 wl = 0
@@ -109,12 +109,17 @@ def computePosition():
 
         prevIntegrationTime = time.time()*1000
 
+#Has robot move in straight 
 my_drive.axis0.controller.input_vel = 50
 my_drive.axis1.controller.input_vel = -50
-value = input("Press 1")
+value = input("Press 1: ")
+initialTime = time.time()
 
 while(value == "1"):
 	computePosition()
-	print(xc)
-	print(yc)
+	print("x: ", xc)
+	print("y: ", yc)
 	time.sleep(1)
+    if (time.time()-initialTime > 10): # checks for if 10 seconds have passed (for purposes of testing only to see if we can have robot move and stop while getting position)
+        my_drive.axis0.controller.input_vel = 0
+        my_drive.axis1.controller.input_vel = 0
