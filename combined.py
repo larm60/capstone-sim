@@ -47,6 +47,8 @@ length = 500 # mm
 xc = 0
 yc = 0
 theta = 0
+referenceTime = 0
+currentState = "Idle"
 
 def computeAngVel():
     global prevWheelComputeTime
@@ -107,19 +109,81 @@ def computePosition():
         toRPM = 30 / math.pi
         dist = math.sqrt(xc*xc + yc * yc)
 
-        prevIntegrationTime = time.time()*1000
+	prevIntegrationTime = time.time()*1000
+
+def stopWheels():
+	global referenceTime
+	global currentState
+	global previousState
+	my_drive.axis0.controller.input_vel = 0
+	my_drive.axis1.controller.input_vel = 0
+	referenceTime = time.time()
+	time.sleep(5)
+	currentState = "Stop"
+	if (currentState == "Rotate"):
+		previousState = "Straight"
+	else:
+		previousState = "Rotate"
+
+def rotateNinety():
+	global referenceTime
+	global currentState
+	global previousState
+	my_drive.axis1.controller.input_vel = 20
+	referenceTime = time.time()
+	time.sleep(5)
+	currentState = "Rotate"
+	previousState = "Stop"
+
+def moveStraight():
+	global referenceTime
+	global currentState
+	global previousState
+	my_drive.axis0.controller.input_vel = 50
+	my_drive.axis1.controller.input_vel = -50
+	referenceTime = time.time()
+	time.sleep(5)
+	currentState = "Straight"
+	previousState = "Rotate"
+
 
 #Has robot move in straight 
 my_drive.axis0.controller.input_vel = 50
 my_drive.axis1.controller.input_vel = -50
-value = input("Press 1: ")
+value = input("Press r for rectangle: ")
 initialTime = time.time()
+currentState = "Straight"
+previousState = "Stop"
 
-while(value == "1"):
-    computePosition()
-    print("x: ", xc)
-    print("y: ", yc)
-    time.sleep(1)
-    if (time.time()-initialTime > 10): # checks for if 10 seconds have passed (for purposes of testing only to see if we can have robot move and stop while getting position)
-        my_drive.axis0.controller.input_vel = 0
-        my_drive.axis1.controller.input_vel = 0
+
+while(value == "r"):
+	# Rectangle or Path: Stop -> Straight -> Stop -> Rotate -> Stop -> Straight -> Stop -> Rotate -> Stop -> Straight -> Stop -> Rotate -> Stop -> Straight
+	computePosition()
+	print("x: ", xc)
+	print("y: ", yc)
+	time.sleep(1)
+
+	# Move Straight
+	if (currentState == "Stop" and previousState == "Rotate"):
+		moveStraight()
+	# Stopping
+	if ((currentState == "Rotate" or currentState == "Straight") and previousState == "Stop"):
+		stopWheels()
+	# Rotate 90
+	if (currentState == "Stop" and previousState == "Straight"):
+		rotateNinety()
+
+
+	#if (time.time()-initialTime > 10): # checks for if 10 seconds have passed (for purposes of testing only to see if we can have robot move and stop while getting position)
+		#stopWheels()
+
+	#time.sleep(5)
+
+	#if (time.time()-referenceTime > 5): # checks if wheel has finally stopped moving)
+		#rotateNinety()
+		#stopWheels()
+
+	#time.sleep(5)
+
+	#if (time.time() - referenceTime > 5):
+		#moveStraight()
