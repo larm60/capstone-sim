@@ -30,10 +30,9 @@ my_drive.axis1.requested_state = AXIS_STATE_CLOSED_LOOP_CONTROL
 # ------------------------------------------------------------------------
 
 ticksPerRev = 1286
-radius = 120 #in mm
-length = 500 #in mm
-toRadPerSec = 1000000.0 * (math.pi * 2) / ticksPerRev
-positionComputeInterval = ticksPerRev * 1000000.0 #in microseconds 
+radius = 0.120 #in m
+length = 0.500 #in m
+positionComputeInterval = 1 #in sec
 
 #Global variables
 wl = 0
@@ -42,8 +41,6 @@ prevWheelComputeTime = 0
 leftTicksPrev = 0
 rightTicksPrev = 0
 prevIntegrationTime = 0
-radius = 120 # mm
-length = 500 # mm
 xc = 0
 yc = 0
 theta = 0
@@ -61,7 +58,7 @@ def computeAngVel():
     global wl
     global wr
 
-    dt_omega = time.time()*1000.0 - prevWheelComputeTime
+    dt_omega = time.time()- prevWheelComputeTime
 
     leftTicks = -1 * my_drive.axis1.encoder.shadow_count
     rightTicks = my_drive.axis0.encoder.shadow_count
@@ -80,7 +77,7 @@ def computeAngVel():
     leftTicksPrev = leftTicks
     rightTicksPrev = rightTicks
 
-    prevWheelComputeTime = time.time()*1000.0
+    prevWheelComputeTime = time.time()
 
 def computePosition():
     global w1
@@ -92,16 +89,16 @@ def computePosition():
     global xc
     global yc
     global theta
-    print("Subtraction: ", time.time()*1000.0 - prevIntegrationTime)
+    print("Subtraction: ", time.time() - prevIntegrationTime)
     print("positionComputeInterval: ", positionComputeInterval)
     #if time.time()*1000.0 - prevIntegrationTime > positionComputeInterval: # get rid of conditional since we sample in the while loop at the bottom
     computeAngVel()
     print("Made it past if")
     # Time elapsed after the previous position has been integrated.
     # change in time is defined as previous - current to prevent round off error.
-    dt_integration = time.time()*1000000.0 - prevIntegrationTime
+    dt_integration = time.time() - prevIntegrationTime
 
-    dt = dt_integration / 1000000.0; # convert to seconds
+    dt = dt_integration
 
     # Dead reckoning equations
 
@@ -112,8 +109,10 @@ def computePosition():
     v = (Vr + Vl) / 2.0 #average velocity
     w = (Vr - Vl) / length #angular velocity
     # Uses 4th order Runge-Kutta to integrate numerically to find position.
-    xNext = xc + dt * v*(2 + math.cos(dt*w / 2))*math.cos(theta + dt * w / 2) / 3
-    yNext = yc + dt * v*(2 + math.cos(dt*w / 2))*math.sin(theta + dt * w / 2) / 3
+    # xNext = xc + dt * v*(2 + math.cos(dt*w / 2))*math.cos(theta + dt * w / 2) / 3
+    # yNext = yc + dt * v*(2 + math.cos(dt*w / 2))*math.sin(theta + dt * w / 2) / 3
+	xNext = xc + dt * v * math.cos(theta + dt*w)
+	yNext = yc + dt * v * math.sin(theta + dt*w)
     thetaNext = theta + dt * w
 
     xc = xNext
@@ -123,7 +122,7 @@ def computePosition():
     toRPM = 30 / math.pi
     dist = math.sqrt(xc*xc + yc * yc)
 
-    prevIntegrationTime = time.time()*1000.0
+    prevIntegrationTime = time.time()
 
 def stopAfterRotate():
 	global xc
