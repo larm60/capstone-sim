@@ -69,8 +69,13 @@ def computeAngVel():
     changeLeftTicks = leftTicks - leftTicksPrev
     changeRightTicks = rightTicks - rightTicksPrev
 
-    wl = changeLeftTicks / dt_omega * toRadPerSec
-    wr = changeRightTicks / dt_omega * toRadPerSec
+    #wl = changeLeftTicks / dt_omega * toRadPerSec
+    #wr = changeRightTicks / dt_omega * toRadPerSec
+    wl = (changeLeftTicks * (2 * math.pi) / dt_omega)
+    wr = (changeRightTicks * (2 * math.pi) / dt_omega)
+	
+
+
 
     leftTicksPrev = leftTicks
     rightTicksPrev = rightTicks
@@ -102,6 +107,8 @@ def computePosition():
 
     Vl = wl * radius #linear velocity left wheel
     Vr = wr * radius #linear velocity right wheel
+    print("left linear: ", Vl)
+    print("right linear: ", Vr)
     v = (Vr + Vl) / 2.0 #average velocity
     w = (Vr - Vl) / length #angular velocity
     # Uses 4th order Runge-Kutta to integrate numerically to find position.
@@ -184,7 +191,7 @@ def moveStraight():
 		computePosition()
 		prevPositionComputeTime = time.time()*1000
 	if (time.time()*1000.0 - prevSendTime > SEND_INTERVAL):
-		print("Printing values)
+		print("Printing values")
 		print("x: ", xc)
 		print("y: ", yc)
 		print("wl: ", wl)
@@ -258,4 +265,4 @@ while (value == "s"):
 	print("wr: ", wr)
 	print("Shadow Left: ", my_drive.axis1.encoder.shadow_count)
 	print("Shadow Right: ", my_drive.axis0.encoder.shadow_count)
-	time.sleep(0.5)
+	time.sleep(1)
