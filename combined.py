@@ -33,7 +33,7 @@ ticksPerRev = 1286
 radius = 120 #in mm
 length = 500 #in mm
 toRadPerSec = 1000000.0 * (math.pi * 2) / ticksPerRev
-positionComputeInterval = 1000000.0 #in microseconds 
+positionComputeInterval = ticksPerRev * 1000000.0 #in microseconds 
 
 #Global variables
 wl = 0
@@ -49,6 +49,10 @@ yc = 0
 theta = 0
 referenceTime = 0
 currentState = "Idle"
+prevPositionComputeTime = 0
+prevSendTime = 0
+POSITION_COMPUTE_INTERVAL = 50 # milliseconds
+SEND_INTERVAL = 100 # milliseconds
 
 def computeAngVel():
     global prevWheelComputeTime
@@ -85,32 +89,32 @@ def computePosition():
     global theta
     print("Subtraction: ", time.time()*1000.0 - prevIntegrationTime)
     print("positionComputeInterval: ", positionComputeInterval)
-    if time.time()*1000.0 - prevIntegrationTime > positionComputeInterval: # get rid of conditional since we sample in the while loop at the bottom
-        computeAngVel()
-        print("Made it past if")
-        # Time elapsed after the previous position has been integrated.
-        # change in time is defined as previous - current to prevent round off error.
-        dt_integration = time.time()*1000.0 - prevIntegrationTime
+    #if time.time()*1000.0 - prevIntegrationTime > positionComputeInterval: # get rid of conditional since we sample in the while loop at the bottom
+    computeAngVel()
+    print("Made it past if")
+    # Time elapsed after the previous position has been integrated.
+    # change in time is defined as previous - current to prevent round off error.
+    dt_integration = time.time()*1000000.0 - prevIntegrationTime
 
-        dt = dt_integration / 1000000.0; # convert to seconds
+    dt = dt_integration / 1000000.0; # convert to seconds
 
-        # Dead reckoning equations
+    # Dead reckoning equations
 
-        Vl = wl * radius #linear velocity left wheel
-        Vr = wr * radius #linear velocity right wheel
-        v = (Vr + Vl) / 2.0 #average velocity
-        w = (Vr - Vl) / length #angular velocity
-        # Uses 4th order Runge-Kutta to integrate numerically to find position.
-        xNext = xc + dt * v*(2 + math.cos(dt*w / 2))*math.cos(theta + dt * w / 2) / 3
-        yNext = yc + dt * v*(2 + math.cos(dt*w / 2))*math.sin(theta + dt * w / 2) / 3
-        thetaNext = theta + dt * w
+    Vl = wl * radius #linear velocity left wheel
+    Vr = wr * radius #linear velocity right wheel
+    v = (Vr + Vl) / 2.0 #average velocity
+    w = (Vr - Vl) / length #angular velocity
+    # Uses 4th order Runge-Kutta to integrate numerically to find position.
+    xNext = xc + dt * v*(2 + math.cos(dt*w / 2))*math.cos(theta + dt * w / 2) / 3
+    yNext = yc + dt * v*(2 + math.cos(dt*w / 2))*math.sin(theta + dt * w / 2) / 3
+    thetaNext = theta + dt * w
 
-        xc = xNext
-        yc = yNext
-        theta = thetaNext
+    xc = xNext
+    yc = yNext
+    theta = thetaNext
 
-        toRPM = 30 / math.pi
-        dist = math.sqrt(xc*xc + yc * yc)
+    toRPM = 30 / math.pi
+    dist = math.sqrt(xc*xc + yc * yc)
 
     prevIntegrationTime = time.time()*1000.0
 
@@ -168,10 +172,27 @@ def rotateNinety():
 def moveStraight():
 	global xc
 	global yc
+	global wl
+	global wr
 	print("Going Straight")
-	computePosition()
-	print("x: ", xc)
-	print("y: ", yc)
+	global prevPositionComputeTime
+	global prevSendTime
+	global POSITION_COMPUTE_INTERVAL
+	global SEND_INTERVAL
+	if (time.time()*1000.0 - prevPositionComputeTime > POSITION_COMPUTE_INTERVAL):
+		print("Computing Position")
+		computePosition()
+		prevPositionComputeTime = time.time()*1000
+	if (time.time()*1000.0 - prevSendTime > SEND_INTERVAL):
+		print("Printing values)
+		print("x: ", xc)
+		print("y: ", yc)
+		print("wl: ", wl)
+		print("wr: ", wr)
+		prevSendTime = time.time()*1000.0
+	#computePosition()
+	#print("x: ", xc)
+	#print("y: ", yc)
 	global referenceTime
 	global currentState
 	global previousState
