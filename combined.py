@@ -30,9 +30,8 @@ my_drive.axis1.requested_state = AXIS_STATE_CLOSED_LOOP_CONTROL
 # ------------------------------------------------------------------------
 
 ticksPerRev = 1286
-radius = 0.120 #in m
-length = 0.500 #in m
-positionComputeInterval = 1 #in sec
+toRadPerSec = 1000000.0 * (math.pi * 2) / ticksPerRev
+positionComputeInterval = 1 #in seconds 
 
 #Global variables
 wl = 0
@@ -41,6 +40,8 @@ prevWheelComputeTime = 0
 leftTicksPrev = 0
 rightTicksPrev = 0
 prevIntegrationTime = 0
+radius = 120 / 1000.0 # m
+length = 500 / 1000.0 # m
 xc = 0
 yc = 0
 theta = 0
@@ -48,8 +49,8 @@ referenceTime = 0
 currentState = "Idle"
 prevPositionComputeTime = 0
 prevSendTime = 0
-POSITION_COMPUTE_INTERVAL = 50 # milliseconds
-SEND_INTERVAL = 100 # milliseconds
+POSITION_COMPUTE_INTERVAL = 1 # seconds
+SEND_INTERVAL = 1 #seconds
 
 def computeAngVel():
     global prevWheelComputeTime
@@ -58,7 +59,7 @@ def computeAngVel():
     global wl
     global wr
 
-    dt_omega = time.time()- prevWheelComputeTime
+    dt_omega = time.time() - prevWheelComputeTime
 
     leftTicks = -1 * my_drive.axis1.encoder.shadow_count
     rightTicks = my_drive.axis0.encoder.shadow_count
@@ -68,8 +69,8 @@ def computeAngVel():
 
     #wl = changeLeftTicks / dt_omega * toRadPerSec
     #wr = changeRightTicks / dt_omega * toRadPerSec
-    wl = (changeLeftTicks * (2 * math.pi) / dt_omega)
-    wr = (changeRightTicks * (2 * math.pi) / dt_omega)
+    wl = (changeLeftTicks * (2 * math.pi) / dt_omega) / ticksPerRev
+    wr = (changeRightTicks * (2 * math.pi) / dt_omega) / ticksPerRev
 	
 
 
@@ -89,30 +90,27 @@ def computePosition():
     global xc
     global yc
     global theta
-    print("Subtraction: ", time.time() - prevIntegrationTime)
-    print("positionComputeInterval: ", positionComputeInterval)
     #if time.time()*1000.0 - prevIntegrationTime > positionComputeInterval: # get rid of conditional since we sample in the while loop at the bottom
     computeAngVel()
-    print("Made it past if")
     # Time elapsed after the previous position has been integrated.
     # change in time is defined as previous - current to prevent round off error.
     dt_integration = time.time() - prevIntegrationTime
 
-    dt = dt_integration
+    dt = dt_integration # convert to seconds
 
     # Dead reckoning equations
 
     Vl = wl * radius #linear velocity left wheel
     Vr = wr * radius #linear velocity right wheel
-    print("left linear: ", Vl)
-    print("right linear: ", Vr)
+    #print("left linear: ", Vl)
+    #print("right linear: ", Vr)
     v = (Vr + Vl) / 2.0 #average velocity
     w = (Vr - Vl) / length #angular velocity
     # Uses 4th order Runge-Kutta to integrate numerically to find position.
-    # xNext = xc + dt * v*(2 + math.cos(dt*w / 2))*math.cos(theta + dt * w / 2) / 3
-    # yNext = yc + dt * v*(2 + math.cos(dt*w / 2))*math.sin(theta + dt * w / 2) / 3
-	xNext = xc + dt * v * math.cos(theta + dt*w)
-	yNext = yc + dt * v * math.sin(theta + dt*w)
+    xNext = xc + dt * v*(2 + math.cos(dt*w / 2))*math.cos(theta + dt * w / 2) / 3
+    yNext = yc + dt * v*(2 + math.cos(dt*w / 2))*math.sin(theta + dt * w / 2) / 3
+    #xNext = xc + dt * v * math.cos(theta + dt*w)
+    #yNext = yc + dt * v * math.sin(theta + dt*w)
     thetaNext = theta + dt * w
 
     xc = xNext
@@ -127,51 +125,102 @@ def computePosition():
 def stopAfterRotate():
 	global xc
 	global yc
+	global wl
+	global wr
+	global theta
 	print("Stop After Rotate")
 	computePosition()
 	print("x: ", xc)
 	print("y: ", yc)
+	print("wl: ", wl)
+	print("wr: ", wr)
+	print("Theta: ", theta)
 	global referenceTime
 	global currentState
 	global previousState
 	my_drive.axis0.controller.input_vel = 0
 	my_drive.axis1.controller.input_vel = 0
 	referenceTime = time.time()
-	time.sleep(8)
+	computePosition()
+	print("x: ", xc)
+	print("y: ", yc)
+	print("wl: ", wl)
+	print("wr: ", wr)
+	print("Theta: ", theta)
+	time.sleep(4)
+	computePosition()
+	print("x: ", xc)
+	print("y: ", yc)
+	print("wl: ", wl)
+	print("wr: ", wr)
+	print("Theta: ", theta)
+	time.sleep(4)
 	currentState = "Stop After Rotate"
 	previousState = "Rotate"
 
 def stopAfterStraight():
 	global xc
 	global yc
+	global wl
+	global wr
+	global theta
 	print("Stop After Straight")
 	computePosition()
 	print("x: ", xc)
 	print("y: ", yc)
+	print("wl: ", wl)
+	print("wr: ", wr)
+	print("Theta: ", theta)
 	global referenceTime
 	global currentState
 	global previousState
 	my_drive.axis0.controller.input_vel = 0
 	my_drive.axis1.controller.input_vel = 0
 	referenceTime = time.time()
-	time.sleep(8)
+	time.sleep(4)
+	computePosition()
+	print("x: ", xc)
+	print("y: ", yc)
+	print("wl: ", wl)
+	print("wr: ", wr)
+	print("Theta: ", theta)
+	time.sleep(4)
 	currentState = "Stop After Straight"
 	previousState = "Straight"
 
 def rotateNinety():
 	global xc
 	global yc
+	global wl
+	global wr
+	global theta
 	print("Rotating")
 	computePosition()
 	print("x: ", xc)
 	print("y: ", yc)
+	print("wl: ", wl)
+	print("wr: ", wr)
+	print("Theta: ", theta)
 	global referenceTime
 	global currentState
 	global previousState
 	my_drive.axis1.controller.input_vel = 20
 	my_drive.axis0.controller.input_vel = 0
 	referenceTime = time.time()
-	time.sleep(8.5)
+	computePosition()
+	print("x: ", xc)
+	print("y: ", yc)
+	print("wl: ", wl)
+	print("wr: ", wr)
+	print("Theta: ", theta)
+	time.sleep(4.25)
+	computePosition()
+	print("x: ", xc)
+	print("y: ", yc)
+	print("wl: ", wl)
+	print("wr: ", wr)
+	print("Theta: ", theta)
+	time.sleep(4.25)
 	currentState = "Rotate"
 	previousState = "Stop After Straight"
 
@@ -180,22 +229,22 @@ def moveStraight():
 	global yc
 	global wl
 	global wr
+	global theta
 	print("Going Straight")
 	global prevPositionComputeTime
 	global prevSendTime
 	global POSITION_COMPUTE_INTERVAL
 	global SEND_INTERVAL
-	if (time.time()*1000.0 - prevPositionComputeTime > POSITION_COMPUTE_INTERVAL):
-		print("Computing Position")
-		computePosition()
-		prevPositionComputeTime = time.time()*1000
-	if (time.time()*1000.0 - prevSendTime > SEND_INTERVAL):
-		print("Printing values")
-		print("x: ", xc)
-		print("y: ", yc)
-		print("wl: ", wl)
-		print("wr: ", wr)
-		prevSendTime = time.time()*1000.0
+	print("Computing Position")
+	computePosition()
+	prevPositionComputeTime = time.time()
+	print("Printing values")
+	print("x: ", xc)
+	print("y: ", yc)
+	print("wl: ", wl)
+	print("wr: ", wr)
+	print("Theta: ", theta)
+	prevSendTime = time.time()
 	#computePosition()
 	#print("x: ", xc)
 	#print("y: ", yc)
@@ -205,7 +254,20 @@ def moveStraight():
 	my_drive.axis0.controller.input_vel = 100
 	my_drive.axis1.controller.input_vel = -100
 	referenceTime = time.time()
-	time.sleep(3)
+	computePosition()
+	print("x: ", xc)
+	print("y: ", yc)
+	print("wl: ", wl)
+	print("wr: ", wr)
+	print("Theta: ", theta)
+	time.sleep(1.5)
+	computePosition()
+	print("x: ", xc)
+	print("y: ", yc)
+	print("wl: ", wl)
+	print("wr: ", wr)
+	print("Theta: ", theta)
+	time.sleep(1.5)
 	currentState = "Straight"
 	previousState = "Stop After Rotate"
 
@@ -222,8 +284,6 @@ previousState = "Stop After Rotate"
 while(value == "r"):
 	# Rectangle or Path: Stop -> Straight -> Stop -> Rotate -> Stop -> Straight -> Stop -> Rotate -> Stop -> Straight -> Stop -> Rotate -> Stop -> Straight
 	computePosition()
-	print("x: ", xc)
-	print("y: ", yc)
 	time.sleep(1)
 
 	# Move Straight
