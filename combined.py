@@ -44,6 +44,7 @@ radius = 120 / 1000.0 # m
 length = 500 / 1000.0 # m
 xc = 0
 yc = 0
+xRef = 0
 theta = 0
 referenceTime = 0
 currentState = "Idle"
@@ -194,6 +195,9 @@ def rotateNinety():
 	global wl
 	global wr
 	global theta
+	global referenceTime
+	global currentState
+	global previousState
 	print("Rotating")
 	computePosition()
 	print("x: ", xc)
@@ -201,9 +205,6 @@ def rotateNinety():
 	print("wl: ", wl)
 	print("wr: ", wr)
 	print("Theta: ", theta)
-	global referenceTime
-	global currentState
-	global previousState
 	my_drive.axis1.controller.input_vel = 20
 	my_drive.axis0.controller.input_vel = 0
 	referenceTime = time.time()
@@ -226,48 +227,33 @@ def rotateNinety():
 
 def moveStraight():
 	global xc
+	global xRef
 	global yc
 	global wl
 	global wr
 	global theta
+	reachedThreshold = False
 	print("Going Straight")
-	global prevPositionComputeTime
-	global prevSendTime
-	global POSITION_COMPUTE_INTERVAL
-	global SEND_INTERVAL
 	print("Computing Position")
-	computePosition()
-	prevPositionComputeTime = time.time()
-	print("Printing values")
-	print("x: ", xc)
-	print("y: ", yc)
-	print("wl: ", wl)
-	print("wr: ", wr)
-	print("Theta: ", theta)
-	prevSendTime = time.time()
-	#computePosition()
-	#print("x: ", xc)
-	#print("y: ", yc)
-	global referenceTime
-	global currentState
-	global previousState
 	my_drive.axis0.controller.input_vel = 100
 	my_drive.axis1.controller.input_vel = -100
-	referenceTime = time.time()
 	computePosition()
-	print("x: ", xc)
-	print("y: ", yc)
-	print("wl: ", wl)
-	print("wr: ", wr)
-	print("Theta: ", theta)
-	time.sleep(1.5)
-	computePosition()
-	print("x: ", xc)
-	print("y: ", yc)
-	print("wl: ", wl)
-	print("wr: ", wr)
-	print("Theta: ", theta)
-	time.sleep(1.5)
+	xRef = xc
+	while(not reachedThreshold):
+		computePosition()
+		if (abs(xRef - xc) > 10):
+			reachedThreshold = True
+			print("x: ", xc)
+			print("y: ", yc)
+			print("wl: ", wl)
+			print("wr: ", wr)
+			print("Theta: ", theta)
+		else:
+			print("x: ", xc)
+			print("y: ", yc)
+			print("wl: ", wl)
+			print("wr: ", wr)
+			print("Theta: ", theta)
 	currentState = "Straight"
 	previousState = "Stop After Rotate"
 
@@ -298,21 +284,6 @@ while(value == "r"):
 	# Rotate 90
 	if (currentState == "Stop After Straight" and previousState == "Straight"):
 		rotateNinety()
-
-
-	#if (time.time()-initialTime > 10): # checks for if 10 seconds have passed (for purposes of testing only to see if we can have robot move and stop while getting position)
-		#stopWheels()
-
-	#time.sleep(5)
-
-	#if (time.time()-referenceTime > 5): # checks if wheel has finally stopped moving)
-		#rotateNinety()
-		#stopWheels()
-
-	#time.sleep(5)
-
-	#if (time.time() - referenceTime > 5):
-		#moveStraight()
 
 while (value == "s"):
 	my_drive.axis0.controller.input_vel = 100
