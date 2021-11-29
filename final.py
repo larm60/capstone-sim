@@ -203,8 +203,8 @@ def stopAfterRotate():
         "timestamp": int(time.time()),  #sends current time as timestamp
         "x": str(xc),           #sends sonar reading from mbed through serial to dynamodb
         "y": str(yc),
-		"wl": str(wl)
-		"wr": str(wr)
+		"wl": str(wl),
+		"wr": str(wr),
 		"theta": str(theta)         #sends threshold value from mbed to dynamodb
         }
     )
@@ -220,8 +220,8 @@ def stopAfterRotate():
         "timestamp": int(time.time()),  #sends current time as timestamp
         "x": str(xc),           #sends sonar reading from mbed through serial to dynamodb
         "y": str(yc),
-		"wl": str(wl)
-		"wr": str(wr)
+		"wl": str(wl),
+		"wr": str(wr),
 		"theta": str(theta)         #sends threshold value from mbed to dynamodb
         }
     )
@@ -249,8 +249,8 @@ def stopAfterStraight():
         "timestamp": int(time.time()),  #sends current time as timestamp
         "x": str(xc),           #sends sonar reading from mbed through serial to dynamodb
         "y": str(yc),
-		"wl": str(wl)
-		"wr": str(wr)
+		"wl": str(wl),
+		"wr": str(wr),
 		"theta": str(theta)         #sends threshold value from mbed to dynamodb
         }
     )
@@ -290,8 +290,8 @@ def rotateNinety():
         "timestamp": int(time.time()),  #sends current time as timestamp
         "x": str(xc),           #sends sonar reading from mbed through serial to dynamodb
         "y": str(yc),
-		"wl": str(wl)
-		"wr": str(wr)
+		"wl": str(wl),
+		"wr": str(wr),
 		"theta": str(theta)         #sends threshold value from mbed to dynamodb
         }
     )
@@ -312,8 +312,8 @@ def rotateNinety():
         "timestamp": int(time.time()),  #sends current time as timestamp
         "x": str(xc),           #sends sonar reading from mbed through serial to dynamodb
         "y": str(yc),
-		"wl": str(wl)
-		"wr": str(wr)
+		"wl": str(wl),
+		"wr": str(wr),
 		"theta": str(theta)         #sends threshold value from mbed to dynamodb
         }
     )
@@ -329,8 +329,8 @@ def rotateNinety():
         "timestamp": int(time.time()),  #sends current time as timestamp
         "x": str(xc),           #sends sonar reading from mbed through serial to dynamodb
         "y": str(yc),
-		"wl": str(wl)
-		"wr": str(wr)
+		"wl": str(wl),
+		"wr": str(wr),
 		"theta": str(theta)         #sends threshold value from mbed to dynamodb
         }
     )
@@ -364,8 +364,8 @@ def moveStraight():
         "timestamp": int(time.time()),  #sends current time as timestamp
         "x": str(xc),           #sends sonar reading from mbed through serial to dynamodb
         "y": str(yc),
-		"wl": str(wl)
-		"wr": str(wr)
+		"wl": str(wl),
+		"wr": str(wr),
 		"theta": str(theta)         #sends threshold value from mbed to dynamodb
         }
     )
@@ -390,8 +390,8 @@ def moveStraight():
         "timestamp": int(time.time()),  #sends current time as timestamp
         "x": str(xc),           #sends sonar reading from mbed through serial to dynamodb
         "y": str(yc),
-		"wl": str(wl)
-		"wr": str(wr)
+		"wl": str(wl),
+		"wr": str(wr),
 		"theta": str(theta)         #sends threshold value from mbed to dynamodb
         }
     )
@@ -407,8 +407,8 @@ def moveStraight():
         "timestamp": int(time.time()),  #sends current time as timestamp
         "x": str(xc),           #sends sonar reading from mbed through serial to dynamodb
         "y": str(yc),
-		"wl": str(wl)
-		"wr": str(wr)
+		"wl": str(wl),
+		"wr": str(wr),
 		"theta": str(theta)         #sends threshold value from mbed to dynamodb
         }
     )
@@ -474,8 +474,8 @@ while (value == "s"):
         "timestamp": int(time.time()),  #sends current time as timestamp
         "x": str(xc),           #sends sonar reading from mbed through serial to dynamodb
         "y": str(yc),
-		"wl": str(wl)
-		"wr": str(wr)
+		"wl": str(wl),
+		"wr": str(wr),
 		"theta": str(theta)         #sends threshold value from mbed to dynamodb
         }
     )
