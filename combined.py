@@ -45,6 +45,7 @@ length = 500 / 1000.0 # m
 xc = 0
 yc = 0
 xRef = 0
+yRef = 0
 theta = 0
 referenceTime = 0
 currentState = "Idle"
@@ -229,9 +230,12 @@ def moveStraight():
 	global xc
 	global xRef
 	global yc
+	global yRef
 	global wl
 	global wr
 	global theta
+	global currentState
+	global previousState
 	reachedThreshold = False
 	print("Going Straight")
 	print("Computing Position")
@@ -239,21 +243,33 @@ def moveStraight():
 	my_drive.axis1.controller.input_vel = -100
 	computePosition()
 	xRef = xc
+	yRef = yc
 	while(not reachedThreshold):
 		computePosition()
-		if (abs(xRef - xc) > 10):
+		print("xRef: ", xRef)
+		print("xc: ", xc)
+		print("yRef: ", yRef)
+		print("yc: ", yc)
+		print("Difference in X: ", abs(xRef - xc))
+		print("Difference in Y: ", abs(yRef - yc))
+		if (abs(xRef - xc) > 1.5 or abs(yRef - yc) > 1.5):
 			reachedThreshold = True
+			print("-------------------------------------")
 			print("x: ", xc)
 			print("y: ", yc)
 			print("wl: ", wl)
 			print("wr: ", wr)
 			print("Theta: ", theta)
+			print("-------------------------------------")
 		else:
 			print("x: ", xc)
 			print("y: ", yc)
 			print("wl: ", wl)
 			print("wr: ", wr)
 			print("Theta: ", theta)
+			print("-------------------------------------")
+			time.sleep(1)
+	print("Reached Threshold")
 	currentState = "Straight"
 	previousState = "Stop After Rotate"
 
@@ -271,19 +287,26 @@ while(value == "r"):
 	# Rectangle or Path: Stop -> Straight -> Stop -> Rotate -> Stop -> Straight -> Stop -> Rotate -> Stop -> Straight -> Stop -> Rotate -> Stop -> Straight
 	computePosition()
 	time.sleep(1)
+	print("STATES")
+	print(currentState)
+	print(previousState)
 
 	# Move Straight
 	if (currentState == "Stop After Rotate" and previousState == "Rotate"):
 		moveStraight()
+		print("DONE MOVING STRAIGHT")
 	# Stop after straight
 	if (currentState == "Straight" and previousState == "Stop After Rotate"):
 		stopAfterStraight()
+		print("DONE STOPPING AFTER STRAIGHT")
 	# Stop after rotate
 	if (currentState == "Rotate" and previousState == "Stop After Straight"):
 		stopAfterRotate()
+		print("DONE STOPPING AFTER ROTATE")
 	# Rotate 90
 	if (currentState == "Stop After Straight" and previousState == "Straight"):
 		rotateNinety()
+		print("DONE ROTATING")
 
 while (value == "s"):
 	my_drive.axis0.controller.input_vel = 100
