@@ -47,7 +47,6 @@ yc = 0
 xRef = 0
 yRef = 0
 theta = 0
-referenceTime = 0
 currentState = "Idle"
 prevPositionComputeTime = 0
 prevSendTime = 0
@@ -74,9 +73,6 @@ def computeAngVel():
     wl = (changeLeftTicks * (2 * math.pi) / dt_omega) / ticksPerRev
     wr = (changeRightTicks * (2 * math.pi) / dt_omega) / ticksPerRev
 	
-
-
-
     leftTicksPrev = leftTicks
     rightTicksPrev = rightTicks
 
@@ -104,15 +100,11 @@ def computePosition():
 
     Vl = wl * radius #linear velocity left wheel
     Vr = wr * radius #linear velocity right wheel
-    #print("left linear: ", Vl)
-    #print("right linear: ", Vr)
     v = (Vr + Vl) / 2.0 #average velocity
     w = (Vr - Vl) / length #angular velocity
     # Uses 4th order Runge-Kutta to integrate numerically to find position.
     xNext = xc + dt * v*(2 + math.cos(dt*w / 2))*math.cos(theta + dt * w / 2) / 3
     yNext = yc + dt * v*(2 + math.cos(dt*w / 2))*math.sin(theta + dt * w / 2) / 3
-    #xNext = xc + dt * v * math.cos(theta + dt*w)
-    #yNext = yc + dt * v * math.sin(theta + dt*w)
     thetaNext = theta + dt * w
 
     xc = xNext
@@ -137,12 +129,10 @@ def stopAfterRotate():
 	print("wl: ", wl)
 	print("wr: ", wr)
 	print("Theta: ", theta)
-	global referenceTime
 	global currentState
 	global previousState
 	my_drive.axis0.controller.input_vel = 0
 	my_drive.axis1.controller.input_vel = 0
-	referenceTime = time.time()
 	computePosition()
 	print("x: ", xc)
 	print("y: ", yc)
@@ -173,12 +163,10 @@ def stopAfterStraight():
 	print("wl: ", wl)
 	print("wr: ", wr)
 	print("Theta: ", theta)
-	global referenceTime
 	global currentState
 	global previousState
 	my_drive.axis0.controller.input_vel = 0
 	my_drive.axis1.controller.input_vel = 0
-	referenceTime = time.time()
 	time.sleep(4)
 	computePosition()
 	print("x: ", xc)
@@ -196,7 +184,6 @@ def rotateNinety():
 	global wl
 	global wr
 	global theta
-	global referenceTime
 	global currentState
 	global previousState
 	print("Rotating")
@@ -208,7 +195,6 @@ def rotateNinety():
 	print("Theta: ", theta)
 	my_drive.axis1.controller.input_vel = 20
 	my_drive.axis0.controller.input_vel = 0
-	referenceTime = time.time()
 	computePosition()
 	print("x: ", xc)
 	print("y: ", yc)
